@@ -35,7 +35,7 @@ const prompt = ai.definePrompt({
   name: 'extractActionItemsPrompt',
   input: {schema: ExtractActionItemsInputSchema},
   output: {schema: ExtractActionItemsOutputSchema},
-  model: googleAI.model('gemini-pro'),
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an AI assistant tasked with extracting action items from meeting transcripts.
 
   Given the following meeting transcript, identify and list all action items and follow-up tasks.
