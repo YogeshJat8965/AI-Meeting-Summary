@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
 
 const SummarizeMeetingInputSchema = z.object({
   transcript: z.string().describe('The meeting transcript to summarize.'),
@@ -29,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeMeetingPrompt',
   input: {schema: SummarizeMeetingInputSchema},
   output: {schema: SummarizeMeetingOutputSchema},
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an expert meeting summarizer. Please provide a concise summary of the key discussion points from the following meeting transcript:\n\nTranscript: {{{transcript}}}`,
 });
 

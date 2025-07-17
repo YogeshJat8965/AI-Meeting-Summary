@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
 
 const ExtractObjectionsInputSchema = z.object({
   transcript: z.string().describe('The meeting transcript.'),
@@ -31,6 +32,7 @@ const prompt = ai.definePrompt({
   name: 'extractObjectionsPrompt',
   input: {schema: ExtractObjectionsInputSchema},
   output: {schema: ExtractObjectionsOutputSchema},
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an AI expert in analyzing meeting transcripts to extract client pain points, objections, and resolutions.\n\nAnalyze the following meeting transcript and extract a list of client pain points, objections, and resolutions.  Be as concise as possible.  Each should be a short sentence.\n\nTranscript: {{{transcript}}}`,
 });
 

@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
 
 const TranscribeAudioInputSchema = z.object({
   audioDataUri: z
@@ -39,7 +40,7 @@ const transcribeAudioFlow = ai.defineFlow(
     //console.log('Transcribing audio...');
 
     const {text} = await ai.generate({
-      model: 'models/whisper-1',
+      model: googleAI.model('gemini-1.5-flash-latest'),
       prompt: [{media: {url: input.audioDataUri}}],
       config: {
         // set safety settings to allow all content
