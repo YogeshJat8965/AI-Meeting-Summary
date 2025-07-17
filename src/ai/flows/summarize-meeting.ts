@@ -30,7 +30,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeMeetingPrompt',
   input: {schema: SummarizeMeetingInputSchema},
   output: {schema: SummarizeMeetingOutputSchema},
-  model: googleAI.model('gemini-1.5-flash-latest'),
+  model: googleAI.model('gemini-pro'),
   prompt: `You are an expert meeting summarizer. Please provide a concise summary of the key discussion points from the following meeting transcript:\n\nTranscript: {{{transcript}}}`,
 });
 
