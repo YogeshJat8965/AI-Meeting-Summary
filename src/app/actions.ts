@@ -70,7 +70,8 @@ export async function processMeeting(formData: FormData): Promise<{ data: Result
 }
 
 export async function sendEmail(results: ResultState): Promise<{ success: boolean; message: string }> {
-  const { GMAIL_EMAIL, GMAIL_APP_PASSWORD } = process.env;
+  const GMAIL_EMAIL = "yogeshjat8965@gmail.com"
+  const GMAIL_APP_PASSWORD = "jwmxtwaxwkfepnhm";
   const emailRecipient = "yogeshjat8965@gmail.com";
 
   if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
