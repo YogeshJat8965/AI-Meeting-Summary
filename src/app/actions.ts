@@ -6,6 +6,7 @@ import { summarizeMeeting } from "@/ai/flows/summarize-meeting";
 import { extractObjections } from "@/ai/flows/extract-objections";
 import { extractActionItems } from "@/ai/flows/extract-action-items";
 import type { ResultState } from "@/types";
+import nodemailer from "nodemailer";
 
 const processMeetingSchema = z.object({
   transcript: z.string().optional(),
@@ -69,15 +70,53 @@ export async function processMeeting(formData: FormData): Promise<{ data: Result
 }
 
 export async function sendEmail(results: ResultState): Promise<{ success: boolean; message: string }> {
-  // This is a placeholder for a real email implementation (e.g., using Nodemailer).
-  // In a real-world scenario, you would integrate an email service here.
+  const { GMAIL_EMAIL, GMAIL_APP_PASSWORD } = process.env;
   const emailRecipient = "yogeshjat8965@gmail.com";
-  console.log(`Attempting to send email to ${emailRecipient} with results:`, results.summary);
-  
-  // Simulate email sending
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  console.log("Email sent successfully (simulated).");
-  
-  return { success: true, message: `Email would be sent to ${emailRecipient}` };
+
+  if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
+    console.error("Gmail credentials are not set in environment variables.");
+    return { success: false, message: "Server is not configured to send emails. Please contact support." };
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_EMAIL,
+      pass: GMAIL_APP_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: `"Insight Extractor" <${GMAIL_EMAIL}>`,
+    to: emailRecipient,
+    subject: 'Your Meeting Summary from Insight Extractor',
+    html: `
+      <h1>Meeting Summary</h1>
+      <p>${results.summary}</p>
+      
+      <h2>Objections & Resolutions</h2>
+      <ul>
+        ${results.objections.map(item => `<li>${item}</li>`).join('')}
+      </ul>
+
+      <h2>Action Items</h2>
+      <ul>
+        ${results.actionItems.map(item => `<li>${item}</li>`).join('')}
+      </ul>
+
+      <hr>
+
+      <h2>Full Transcript</h2>
+      <p>${results.transcript}</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent successfully to ${emailRecipient}.`);
+    return { success: true, message: `Email sent successfully to ${emailRecipient}` };
+  } catch (error: any) {
+    console.error("Failed to send email:", error);
+    return { success: false, message: `Failed to send email. Error: ${error.message}` };
+  }
 }
