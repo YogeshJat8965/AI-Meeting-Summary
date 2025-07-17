@@ -29,21 +29,6 @@ const InsightExtractor = () => {
     }
   };
 
-  const fileToDataURI = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result);
-        } else {
-          reject(new Error('Failed to read file as Data URI'));
-        }
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  }
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setResults(null);
@@ -71,7 +56,18 @@ const InsightExtractor = () => {
             return;
         }
         try {
-            const audioDataUri = await fileToDataURI(file);
+            const audioDataUri = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                  resolve(reader.result);
+                } else {
+                  reject(new Error('Failed to read file as Data URI'));
+                }
+              };
+              reader.onerror = (error) => reject(error);
+              reader.readAsDataURL(file);
+            });
             formData.append('audioDataUri', audioDataUri);
         } catch (e) {
             setError("Could not read the audio file.");
