@@ -71,12 +71,13 @@ export async function processMeeting(formData: FormData): Promise<{ data: Result
 export async function sendEmail(results: ResultState): Promise<{ success: boolean; message: string }> {
   // This is a placeholder for a real email implementation (e.g., using Nodemailer).
   // In a real-world scenario, you would integrate an email service here.
-  console.log("Attempting to send email with results:", results.summary);
+  const emailRecipient = "yogeshjat8965@gmail.com";
+  console.log(`Attempting to send email to ${emailRecipient} with results:`, results.summary);
   
   // Simulate email sending
   await new Promise(resolve => setTimeout(resolve, 1000));
   
   console.log("Email sent successfully (simulated).");
   
-  return { success: true, message: "Email sent successfully!" };
+  return { success: true, message: `Email would be sent to ${emailRecipient}` };
 }
