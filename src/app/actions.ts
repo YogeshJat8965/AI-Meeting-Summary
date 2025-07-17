@@ -10,35 +10,18 @@ import nodemailer from "nodemailer";
 
 const processMeetingSchema = z.object({
   transcript: z.string().optional(),
-  file: z.instanceof(File).optional(),
+  audioDataUri: z.string().optional(),
 });
-
-function fileToDataURI(file: File): Promise<string> {
-    const reader = new FileReader();
-    reader.onload = () => {
-        if (typeof reader.result === 'string') {
-            resolve(reader.result);
-        } else {
-            reject(new Error('Failed to read file as Data URI'));
-        }
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
-}
 
 
 export async function processMeeting(formData: FormData): Promise<{ data: ResultState } | { error: string }> {
   const rawTranscript = formData.get("transcript") as string | null;
-  const audioFile = formData.get("file") as File | null;
+  const audioDataUri = formData.get("audioDataUri") as string | null;
   
   let transcript = rawTranscript || "";
 
   try {
-    if (audioFile && audioFile.size > 0) {
-      if (!audioFile.type.startsWith("audio/")) {
-        return { error: "Invalid file type. Please upload an audio file." };
-      }
-      const audioDataUri = await fileToDataURI(audioFile);
+    if (audioDataUri) {
       const transcriptionResult = await transcribeAudio({ audioDataUri });
       transcript = transcriptionResult.transcription;
     }

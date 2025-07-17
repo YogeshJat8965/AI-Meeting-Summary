@@ -29,16 +29,27 @@ const InsightExtractor = () => {
     }
   };
 
+  const fileToDataURI = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Failed to read file as Data URI'));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setResults(null);
     setError(null);
     const formData = new FormData(event.currentTarget);
     
-    if (activeTab === 'audio' && file) {
-      formData.set('file', file);
-    }
-
     if (activeTab === 'text' && !formData.get('transcript')?.toString().trim()) {
       setError("Please paste a transcript.");
       return;
@@ -49,6 +60,30 @@ const InsightExtractor = () => {
     }
 
     startTransition(async () => {
+      if (activeTab === 'audio' && file) {
+        if (!file.type.startsWith("audio/")) {
+            setError("Invalid file type. Please upload an audio file.");
+            toast({
+              variant: "destructive",
+              title: "Invalid File Type",
+              description: "Please upload a valid audio file.",
+            });
+            return;
+        }
+        try {
+            const audioDataUri = await fileToDataURI(file);
+            formData.append('audioDataUri', audioDataUri);
+        } catch (e) {
+            setError("Could not read the audio file.");
+            toast({
+              variant: "destructive",
+              title: "File Read Error",
+              description: "There was a problem reading your audio file.",
+            });
+            return;
+        }
+      }
+
       const result = await processMeeting(formData);
       if (result.error) {
         setError(result.error);
