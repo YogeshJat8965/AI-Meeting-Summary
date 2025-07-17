@@ -14,18 +14,16 @@ const processMeetingSchema = z.object({
 });
 
 function fileToDataURI(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (typeof reader.result === 'string') {
-                resolve(reader.result);
-            } else {
-                reject(new Error('Failed to read file as Data URI'));
-            }
-        };
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-    });
+    const reader = new FileReader();
+    reader.onload = () => {
+        if (typeof reader.result === 'string') {
+            resolve(reader.result);
+        } else {
+            reject(new Error('Failed to read file as Data URI'));
+        }
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
 }
 
 
@@ -70,8 +68,8 @@ export async function processMeeting(formData: FormData): Promise<{ data: Result
 }
 
 export async function sendEmail(results: ResultState): Promise<{ success: boolean; message: string }> {
-  const GMAIL_EMAIL = "yogeshjat8965@gmail.com"
-  const GMAIL_APP_PASSWORD = "jwmxtwaxwkfepnhm";
+  const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
+  const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
   const emailRecipient = "yogeshjat8965@gmail.com";
 
   if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
@@ -80,7 +78,9 @@ export async function sendEmail(results: ResultState): Promise<{ success: boolea
   }
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
     auth: {
       user: GMAIL_EMAIL,
       pass: GMAIL_APP_PASSWORD,
@@ -113,6 +113,7 @@ export async function sendEmail(results: ResultState): Promise<{ success: boolea
   };
 
   try {
+    await transporter.verify(); // Verify the connection configuration
     await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${emailRecipient}.`);
     return { success: true, message: `Email sent successfully to ${emailRecipient}` };
